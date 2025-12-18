@@ -1,0 +1,32 @@
+% -----------------------------------------------------------
+
+%! sumar_lista(+Lista:list, -Suma:number) is det.
+%
+% Suma solo los elementos numéricos (integer o float) en Lista.
+% Ignora átomos, estructuras u otros términos no numéricos.
+% Falla con error si Lista contiene una variable no instanciada.
+%
+% @arg Lista    Lista de términos (debe ser una lista cerrada).
+% @arg Suma     Suma total de los elementos numéricos (número).
+
+sumar_lista(Lista, Suma) :-
+    sumar_lista_aux(Lista, 0, Suma).
+
+% Caso base: lista vacía → acumulador es el resultado
+sumar_lista_aux([], Acum, Acum) :- !.
+
+% Caso recursivo: procesar cabeza
+sumar_lista_aux([H|T], Acum, Suma) :-
+    !,  % corte para asegurar que es una lista
+    (   var(H)
+    ->  throw(error(uninstantiated_variable_in_list, sumar_lista/2))
+    ;   number(H)
+    ->  NuevoAcum is Acum + H,
+        sumar_lista_aux(T, NuevoAcum, Suma)
+    ;   % H no es número ni variable → ignorar
+        sumar_lista_aux(T, Acum, Suma)
+    ).
+
+% Caso de error: entrada no es una lista
+sumar_lista_aux(X, _, _) :-
+    throw(error(type_error(list, X), sumar_lista/2)).
